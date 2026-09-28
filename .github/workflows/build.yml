@@ -31,7 +31,7 @@ jobs:
     name: Build Site
     runs-on: ubuntu-latest
     env:
-      HUGO_VERSION: 0.166.0
+      HUGO_VERSION: 0.167.0
       CHANNEL_ID: UCE6h5SQHI8Xv3v_F7DZFtTA
     steps:
       - name: Install Hugo CLI
