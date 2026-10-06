@@ -30,6 +30,7 @@ jobs:
   build:
     name: Build Site
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       HUGO_VERSION: 0.166.0
       CHANNEL_ID: UCE6h5SQHI8Xv3v_F7DZFtTA
@@ -71,6 +72,7 @@ jobs:
     name: Deploy Site
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
