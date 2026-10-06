@@ -55,7 +55,9 @@ jobs:
           # UULF<suffix> is YouTube's auto-generated "Videos" playlist:
           # long-form only, no Shorts. UUSH<suffix> is the Shorts equivalent.
           PLAYLIST_ID="UULF${CHANNEL_ID#UC}"
-          curl -sSfL --max-time 30 --retry 3 --retry-delay 5 -o /tmp/feed.xml \
+          # --retry-all-errors is required: plain --retry skips 404s, which
+          # YouTube's feed endpoint returns intermittently.
+          curl -sSfL --max-time 30 --retry 5 --retry-delay 15 --retry-all-errors -o /tmp/feed.xml \
             "https://www.youtube.com/feeds/videos.xml?playlist_id=${PLAYLIST_ID}"
           python3 .github/scripts/feed-to-json.py /tmp/feed.xml data/videos.json
       - name: Build with Hugo

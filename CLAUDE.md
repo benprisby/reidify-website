@@ -97,13 +97,21 @@ separately; both TODOs point at each other.
 
 The GitHub Action curls the feed, converts it to `data/videos.json` via
 `.github/scripts/feed-to-json.py`, and `partials/video-grid.html` renders it.
-The cron is the only thing keeping the grid current, and it runs hourly —
-Actions minutes are unlimited on a public repo, so there is nothing to ration.
-It fires at `:17` because GitHub's scheduler is best-effort and most contended
-on the hour.
+Nothing in the workflow schedules itself: the self-hosted Dkron cluster fires
+`workflow_dispatch` hourly on the hour, and that is the only thing keeping the
+grid current. Actions minutes are unlimited on a public repo, so there is
+nothing to ration.
 
-The fetch step is **fatal**. `curl` retries transient blips; anything that
-survives that is a real problem — a feed format change or a sustained block —
+**A stuck deploy job silently freezes the site.** The `pages` concurrency group
+holds one running and one pending run; every later dispatch is cancelled as
+superseded. In October 2026 a Deploy job sat "queued" for four days and 82
+hourly runs were cancelled without a single red X. Both jobs now have
+`timeout-minutes: 15` so a hang fails loudly. If the grid looks stale, check
+`gh run list` for a `queued` run and `gh run cancel --force` it.
+
+The fetch step is **fatal**. `curl` retries transient blips — with
+`--retry-all-errors`, because plain `--retry` skips 404s, which YouTube's feed
+endpoint returns intermittently; anything that survives that is a real problem — a feed format change or a sustained block —
 and should be loud. Silent staleness is the worse failure here: a sponsor-facing
 page serving a frozen video list that nobody notices beats a red X in Actions.
 
